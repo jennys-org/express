@@ -1,11 +1,9 @@
 version: 2.1
 
-jobs:
-  test:
-    docker:
-      - image: cimg/node:24.13.0
+commands:
+  install-deps:
+    description: Install npm dependencies, reusing npm's download cache
     steps:
-      - checkout
       - restore_cache:
           keys:
             - v1-npm-{{ arch }}-{{ checksum "package.json" }}
@@ -17,6 +15,24 @@ jobs:
           key: v1-npm-{{ arch }}-{{ checksum "package.json" }}
           paths:
             - ~/.npm
+
+jobs:
+  lint:
+    docker:
+      - image: cimg/node:24.13.0
+    steps:
+      - checkout
+      - install-deps
+      - run:
+          name: Run lint
+          command: npm run lint
+
+  test:
+    docker:
+      - image: cimg/node:24.13.0
+    steps:
+      - checkout
+      - install-deps
       - run:
           name: Run tests
           command: npm test
@@ -24,4 +40,7 @@ jobs:
 workflows:
   build:
     jobs:
-      - test
+      - lint
+      - test:
+          requires:
+            - lint
