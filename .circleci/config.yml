@@ -38,7 +38,12 @@ jobs:
       - install-deps
       - run:
           name: Run tests
-          command: npm test
+          command: |
+            mkdir -p test-results/mocha
+            npm test -- --reporter xunit --reporter-option output=test-results/mocha/results.xml
+      - store_test_results:
+          path: test-results
+          when: always
 
 workflows:
   build:
