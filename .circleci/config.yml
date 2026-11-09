@@ -27,8 +27,11 @@ jobs:
           command: npm run lint
 
   test:
+    parameters:
+      node-version:
+        type: string
     docker:
-      - image: cimg/node:26.13.0
+      - image: cimg/node:<< parameters.node-version >>
     steps:
       - checkout
       - install-deps
@@ -41,5 +44,9 @@ workflows:
     jobs:
       - lint
       - test:
+          name: test-node-<< matrix.node-version >>
+          matrix:
+            parameters:
+              node-version: ["18.20.8", "26.13.0"]
           requires:
             - lint
